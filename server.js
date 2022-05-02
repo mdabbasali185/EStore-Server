@@ -27,13 +27,14 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
+        console.log('data base connected');
         const collection = client.db("inventory").collection("products");
         // pore korbo
-        app.post('/login', (req, res) => {
-            const email = req.body.email
-            const token = jwt.sign({ email }, process.env.TOKEN_SECRETE, { expiresIn: '1h' })
-            res.send({ token })
-        })
+        // app.post('/login', (req, res) => {
+        //     const email = req.body.email
+        //     const token = jwt.sign({ email }, process.env.TOKEN_SECRETE, { expiresIn: '1h' })
+        //     res.send({ token })
+        // })
 
         app.get('/inventories', async (req, res) => {
             const query = {}
@@ -49,9 +50,16 @@ async function run() {
             const newInventory = { image, name, price, quantity, supplier, description, email }
             const insert = await collection.insertOne(newInventory)
             if (insert) {
-                res.status(200).send(result)
+                res.status(200).send(insert)
             }
 
+        })
+// get 1
+        app.get(`/inventory/:id`, async (req, res) => {
+            const { id } = req.params
+            const filter = { _id: ObjectId(id) }
+            const result = await collection.findOne(filter)
+            res.send(result)
         })
 
         app.delete(`/inventory/:id`, async (req, res) => {

@@ -30,11 +30,11 @@ async function run() {
         console.log('data base connected');
         const collection = client.db("inventory").collection("products");
         // pore korbo
-        // app.post('/login', (req, res) => {
-        //     const email = req.body.email
-        //     const token = jwt.sign({ email }, process.env.TOKEN_SECRETE, { expiresIn: '1h' })
-        //     res.send({ token })
-        // })
+        app.post('/login', (req, res) => {
+            const email = req.body.email
+            const token = jwt.sign({ email }, process.env.TOKEN_SECRETE, { expiresIn: '1h' })
+            res.send({ token })
+        })
 
         app.get('/inventories', async (req, res) => {
             const query = {}

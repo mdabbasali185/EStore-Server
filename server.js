@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config()
-const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
 
 
 // declare port and app
@@ -29,12 +29,6 @@ async function run() {
         await client.connect();
         console.log('data base connected');
         const collection = client.db("inventory").collection("products");
-        // pore korbo
-        app.post('/login', (req, res) => {
-            const email = req.body.email
-            const token = jwt.sign({ email }, process.env.TOKEN_SECRETE, { expiresIn: '1h' })
-            res.send({ token })
-        })
 
         app.get('/inventories', async (req, res) => {
             const query = {}
@@ -54,7 +48,7 @@ async function run() {
             }
 
         })
-// get 1
+        // get 1
         app.get(`/inventory/:id`, async (req, res) => {
             const { id } = req.params
             const filter = { _id: ObjectId(id) }
@@ -62,6 +56,7 @@ async function run() {
             res.send(result)
         })
 
+        // delete
         app.delete(`/inventory/:id`, async (req, res) => {
             const { id } = req.params
             const filter = { _id: ObjectId(id) }
@@ -69,7 +64,13 @@ async function run() {
             res.send(itemDelete)
         })
 
-
+        // jwt token
+        app.post('/jwt-generator', async(req,res)=>{
+            const email=req.body.email
+            console.log(email);
+            const token = jwt.sign({ email }, process.env.TOKEN_SECRETE);
+            res.send(token)
+        })
 
     } finally {
 

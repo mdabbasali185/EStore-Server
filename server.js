@@ -14,6 +14,26 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+const jwtVerify = (req, res, next) => {
+    const token = req.headers.authorization
+
+    jwt.verify(token, process.env.TOKEN_SECRETE, function (err, decoded) {
+        if (err) {
+            console.dir(err)   //send error message
+            return
+        }
+        req.decoded = decoded
+        next()
+    });
+
+}
+
+
+
+
+
+
+
 
 
 
@@ -31,15 +51,18 @@ async function run() {
         const collection = client.db("inventory").collection("products");
 
         app.get('/inventories', async (req, res) => {
+            const { limit } = req.query
+
+
             const query = {}
             const cursor = collection.find(query)
-            const result = await cursor.toArray()
+            const result = await cursor.limit(parseInt(limit)).toArray()
             res.status(200).send(result)
         })
 
         // post inventory
         app.post('/inventories', async (req, res) => {
-            console.log(req.body);
+
             const { image, name, price, quantity, supplier, description, email } = req.body
             const newInventory = { image, name, price, quantity, supplier, description, email }
             const insert = await collection.insertOne(newInventory)
@@ -47,12 +70,25 @@ async function run() {
                 res.status(200).send(insert)
             }
 
+
+
+
         })
         // get 1
         app.get(`/inventory/:id`, async (req, res) => {
             const { id } = req.params
             const filter = { _id: ObjectId(id) }
             const result = await collection.findOne(filter)
+            res.send(result)
+        })
+
+        // my items
+        app.get(`/my-items`, jwtVerify, async (req, res) => {
+            const email = req.decoded.email
+
+            const filter = { email }
+            const cursor = collection.find(filter)
+            const result = await cursor.toArray()
             res.send(result)
         })
 
@@ -65,9 +101,8 @@ async function run() {
         })
 
         // jwt token
-        app.post('/jwt-generator', async(req,res)=>{
-            const email=req.body.email
-            console.log(email);
+        app.post('/jwt-generator', async (req, res) => {
+            const email = req.body.email
             const token = jwt.sign({ email }, process.env.TOKEN_SECRETE);
             res.send(token)
         })

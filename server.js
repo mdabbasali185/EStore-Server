@@ -29,17 +29,7 @@ const jwtVerify = (req, res, next) => {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
+// const mongo db
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@todo.yuvqo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -99,6 +89,17 @@ async function run() {
             const itemDelete = await collection.deleteOne(filter)
             res.send(itemDelete)
         })
+
+        // update quantity
+        app.put(`/inventory/:id`, async (req, res) => {
+            const { id } = req.params
+            const quantity = req.body.updatedQuantity
+            const filter = { _id: ObjectId(id) }
+            const updatedQuantity = { $set: { quantity } }
+            const itemUpdated = await collection.updateOne(filter, updatedQuantity)
+            res.send(itemUpdated)
+        })
+
 
         // jwt token
         app.post('/jwt-generator', async (req, res) => {

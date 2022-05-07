@@ -19,8 +19,7 @@ const jwtVerify = (req, res, next) => {
 
     jwt.verify(token, process.env.TOKEN_SECRETE, function (err, decoded) {
         if (err) {
-            console.dir(err)   //send error message
-            return
+            return res.status(403).send({ message: "token not verify" })
         }
         req.decoded = decoded
         next()
@@ -45,13 +44,21 @@ async function run() {
             const query = {}
             const cursor = collection.find(query)
             const result = await cursor.limit(parseInt(limit)).toArray()
-            res.status(200).send(result)
+            if (result) {
+                res.status(200).send(result)
+            } else {
+                res.status(500).send({ message: 'server error' })
+            }
         })
         app.get('/recent', async (req, res) => {
             const query = {}
             const cursor = collection.find(query).sort({ _id: -1 }).limit(3)
-            const result = await cursor.limit(parseInt(limit)).toArray()
-            res.status(200).send(result)
+            const result = await cursor.toArray()
+            if (result) {
+                res.status(200).send(result)
+            } else {
+                res.status(500).send({ message: 'server error' })
+            }
         })
 
         // post inventory
@@ -73,7 +80,11 @@ async function run() {
             const { id } = req.params
             const filter = { _id: ObjectId(id) }
             const result = await collection.findOne(filter)
-            res.send(result)
+            if (result) {
+                res.status(200).send(result)
+            } else {
+                res.status(500).send({ message: 'server error' })
+            }
         })
 
         // my items
@@ -83,7 +94,11 @@ async function run() {
             const filter = { email }
             const cursor = collection.find(filter)
             const result = await cursor.toArray()
-            res.send(result)
+            if (result) {
+                res.status(200).send(result)
+            } else {
+                res.status(500).send({ message: 'server error' })
+            }
         })
 
         // delete

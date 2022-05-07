@@ -42,10 +42,14 @@ async function run() {
 
         app.get('/inventories', async (req, res) => {
             const { limit } = req.query
-
-
             const query = {}
             const cursor = collection.find(query)
+            const result = await cursor.limit(parseInt(limit)).toArray()
+            res.status(200).send(result)
+        })
+        app.get('/recent', async (req, res) => {
+            const query = {}
+            const cursor = collection.find(query).sort({ _id: -1 }).limit(3)
             const result = await cursor.limit(parseInt(limit)).toArray()
             res.status(200).send(result)
         })
@@ -114,22 +118,6 @@ async function run() {
 }
 
 run().catch(console.dir)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // basic route

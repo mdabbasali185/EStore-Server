@@ -40,7 +40,7 @@ async function run() {
         const collection = client.db("inventory").collection("products");
 
         app.get('/inventories', async (req, res) => {
-            const limit = req.query.limit || 10
+            const limit = req.query.limit || 100
             const query = {}
             const cursor = collection.find(query)
             const result = await cursor.limit(parseInt(limit)).toArray()
